@@ -9,30 +9,68 @@ import * as ImagePicker from 'expo-image-picker';
 function CreateIssue() {
 
     const [selected, setSelected] = useState("");
-  const data = [
-    {key:'1', value:'Mobiles', },
-    {key:'2', value:'Appliances'},
-    {key:'3', value:'Cameras'},
-    {key:'4', value:'Computers', },
-    {key:'5', value:'Vegetables'},
-    {key:'6', value:'Diary Products'},
-    {key:'7', value:'Drinks'},
-]
+    const option1 = [
+        {key:'1', value:'issue 1', },
+        {key:'2', value:'issue 2'},
+        {key:'3', value:'issue 3'},
+        {key:'4', value:'issue 4', },
+        {key:'5', value:'issue 5'},
+    ]
+    const option2 = [
+        {key:'1', value:'issue 1', },
+        {key:'2', value:'issue 2'},
+        {key:'3', value:'issue 3'},
+        {key:'4', value:'issue 4', },
+        {key:'5', value:'issue 5'},
+    ]
 
 const pickImage = async () => {
-    
     let result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.All,
-    allowsEditing: true,
-    aspect: [4, 3],
-    quality: 1,
-    });
+        allowsEditing: true,
+        aspect: [4, 3],
+        base64: true
+      });
 
-    console.log(result);
-
-    if (!result.canceled) {
-    setImage(result.assets[0].uri);
+  
+      if (!result.cancelled) {
+      console.log(result.cancelled)
+      //     this.setState({ image: result.uri })
+        
+        let base64Img = `data:image/jpg;base64,${result.base64}`
+        
+    //     //Add your cloud name
+        let apiUrl = 'https://api.cloudinary.com/v1_1/zainahmed/image/upload';
+    
+        let data = {
+          "file": base64Img,
+          "upload_preset": "an2dckm9",
+        }
+  
+        fetch(apiUrl, {
+          body: JSON.stringify(data),
+          headers: {
+            'content-type': 'application/json'
+          },
+          method: 'POST',
+        }).then(async r => {
+            let data = await r.json()
+            console.log(data.secure_url)
+            return data.secure_url
+      }).catch(err=>console.log(err))
     }
+    
+    // let result = await ImagePicker.launchImageLibraryAsync({
+    // mediaTypes: ImagePicker.MediaTypeOptions.All,
+    // allowsEditing: true,
+    // aspect: [4, 3],
+    // quality: 1,
+    // });
+
+    // console.log(result);
+
+    // if (!result.canceled) {
+    // setImage(result.assets[0].uri);
+    // }
 };
 
 const pickImageFromCamera = async () => {
@@ -55,6 +93,8 @@ const pickImageFromCamera = async () => {
     }
 };
 
+
+
     return (
         <View style={{
             // borderWidth:2,
@@ -63,10 +103,10 @@ const pickImageFromCamera = async () => {
             width:'100%'
         }}>
             <View style={{paddingVertical:10}}>
-                <DropDown dropdownShown={true} data={data} selectOptionHandle={setSelected}/>
+                <DropDown dropdownShown={true} data={option1} selectOptionHandle={setSelected}/>
             </View>
             <View  style={{paddingVertical:10}}>
-                <DropDown dropdownShown={false} data={data} selectOptionHandle={setSelected}/>
+                <DropDown dropdownShown={false} data={option2} selectOptionHandle={setSelected}/>
             </View>
             <View style={{paddingVertical:10}}>
                 <Input placeHolder="type"/>
